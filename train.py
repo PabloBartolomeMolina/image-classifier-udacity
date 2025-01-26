@@ -184,7 +184,7 @@ def save_model(trained_model,destination_directory,model_arch):
     # Defines model's checkpoint.
     # - General improvement :
     #       fixed values of neurons -> variables for each at the beginning of the file to easily manage changes.
-    
+    print(trained_model.class_to_idx)
     model_checkpoint = {'model_arch':model_arch, 
                     'clf_input':25088,
                     'clf_output':102,
@@ -198,12 +198,17 @@ def save_model(trained_model,destination_directory,model_arch):
                     'test_batch_size': 32,
                     'epochs_trained': 20,
                     }
-    
+    checkpoint = {'architecture': trained_model.name,
+                  'classifier': trained_model.classifier,
+                  'class_to_idx': trained_model.class_to_idx,
+                  'state_dict': trained_model.state_dict()}
+                          
     if destination_directory: # If defined, we save in a specific directory.
-        torch.save(model_checkpoint,destination_directory+"/"+model_arch+"_checkpoint.pth")
+        #torch.save(model_checkpoint,destination_directory+"/"+model_arch+"_checkpoint.pth")
+        torch.save(checkpoint,destination_directory+"/"+model_arch+"_checkpoint.pth")
         print(f"{model_arch} successfully saved to {destination_directory}")
     else: # current directory
-        torch.save(model_checkpoint,model_arch+"_checkpoint.pth")
+        torch.save(checkpoint,model_arch+"_checkpoint.pth")
         print(f"{model_arch} successfully saved to current directory as {model_arch}_checkpoint.pth")
 
 def main():
@@ -252,5 +257,6 @@ def main():
     # Use current directory by default.
     destination_directory = None
     trained_model.class_to_idx = train_data.class_to_idx # improves label to name mapping
+    print(trained_model.class_to_idx)
     save_model(trained_model,destination_directory,'vgg16')
 if __name__ == '__main__': main()

@@ -26,21 +26,6 @@ def arg_parser():
     args = parser.parse_args()
     return args
 
-checkpoint = 'vgg16_checkpoint.pth'
-'''
-# function that accepts two arguments: filepath (location of checkpoint) and device(gpu/cpu)
-def load_checkpoint(filepath, device):
-    # loads the GPU when available
-    if device=="gpu":
-        map_location=lambda device, loc: device.cuda()
-    else:
-        map_location='cpu'
-    # Redefines checkpoint by loading it.
-    checkpoint = torch.load(f=filepath,map_location=map_location)
-    
-    # Get number of input units, output units, hidden units, and state_dict
-    return checkpoint['model_arch'],checkpoint['clf_input'], checkpoint['clf_output'], checkpoint['clf_hidden'],checkpoint['state_dict'],checkpoint['model_class_to_index']
-'''
 def load_checkpoint(checkpoint_path, device):
     # loads the GPU when available
     if device=="gpu":
@@ -55,14 +40,14 @@ def load_checkpoint(checkpoint_path, device):
     
     for param in model.parameters(): 
         param.requires_grad = False
-    #model.load_state_dict(checkpoint['state_dict'])
-    model.class_to_idx = checkpoint['model_class_to_index']
+    
+    # Load from checkpoint
+    model.class_to_idx = checkpoint['class_to_idx']
+    model.classifier = checkpoint['classifier']
+    model.load_state_dict(checkpoint['state_dict'])
+    print(model.class_to_idx)
     
     return model
-    
-# loads the checkpoint and store needed parameters in appropiate variables.
-#model_arch,input_units, output_units, hidden_units, state_dict, class_to_idx = load_checkpoint(checkpoint,device)
-#model.load_state_dict(state_dict)
 
 # Process a PIL image for use in a PyTorch model
 def process_image(image):
@@ -105,10 +90,10 @@ def class_to_label(file, classes):
     labels = []
     for c in classes:
         labels.append(class_mapping[c])
+    
+    print(class_mapping)
+    print(labels)
     return labels
-
-# Uses class_to_label() to map folder labels (1-102) to flower names.
-#idx_mapping = dict(map(reversed, class_to_idx.items()))
 
 # Predicts the class of an image using out deep learning model. 
 def predict(image_path, model,idx_mapping, topk, device):
@@ -157,11 +142,7 @@ def main():
     # Select device and load model from checkpoint.
     device = check_gpu(gpu_arg=args.gpu);
     model = load_checkpoint(args.checkpoint, device)
-    
-    #idx_to_class = {val: key for key, val in model.class_to_idx.items()}
-    
-    #model_arch,input_units, output_units, hidden_units, state_dict, class_to_idx = load_checkpoint(checkpoint,device)
-    #model.load_state_dict(state_dict)
+    print(model)
     
     idx_mapping = dict(map(reversed, model.class_to_idx.items()))
     print(f'model.class_to_idx type: {type(model.class_to_idx.items())}, idx_mapping length: {len(model.class_to_idx.items())}')
@@ -171,6 +152,6 @@ def main():
     image_tensor = process_image(args.image)
     probabilities,classes = predict(args.image,model,idx_mapping,args.top_k,device)
     # Print results.
-    print_predictions(probabilities,classes,test_image.split('/')[-1],'cat_to_name.json')
+    print_predictions(probabilities,classes,args.image.split('/')[-1],'cat_to_name.json')
 
 if __name__ == '__main__': main()
