@@ -14,7 +14,7 @@ def arg_parser():
     parser.add_argument('--save_dir', dest="save_dir", action="store", default="./vgg16_checkpoint.pth")
     parser.add_argument('--learning_rate', dest="learning_rate", action="store", default=0.003)
     parser.add_argument('--hidden_units', type=int, dest="hidden_units", action="store", default=120)
-    parser.add_argument('--epochs', dest="epochs", action="store", type=int, default=1) # 3 for testing changes, 10 as final to get some extra accuracy
+    parser.add_argument('--epochs', dest="epochs", action="store", type=int, default=10) # 3 for testing changes, 10 as final to get some extra accuracy
     parser.add_argument('--gpu', dest="gpu", action="store", default="cuda")
     args = parser.parse_args()
     return args

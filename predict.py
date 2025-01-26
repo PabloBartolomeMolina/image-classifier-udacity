@@ -45,7 +45,7 @@ def load_checkpoint(checkpoint_path, device):
     model.class_to_idx = checkpoint['class_to_idx']
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])
-    print(model.class_to_idx)
+    #print(model.class_to_idx)
     
     return model
 
@@ -91,8 +91,8 @@ def class_to_label(file, classes):
     for c in classes:
         labels.append(class_mapping[c])
     
-    print(class_mapping)
-    print(labels)
+    #print(class_mapping)
+    #print(labels)
     return labels
 
 # Predicts the class of an image using out deep learning model. 
@@ -111,9 +111,9 @@ def predict(image_path, model,idx_mapping, topk, device):
     list_idx = top_idx.tolist()[0]
     classes = []
     model.train()
-    print(list_idx)
+    #print(list_idx)
     for x in list_idx:
-        print(x)
+        #print(x)
         classes.append(idx_mapping[x])
     return list_ps, classes
 
@@ -142,11 +142,11 @@ def main():
     # Select device and load model from checkpoint.
     device = check_gpu(gpu_arg=args.gpu);
     model = load_checkpoint(args.checkpoint, device)
-    print(model)
+    #print(model)
     
     idx_mapping = dict(map(reversed, model.class_to_idx.items()))
-    print(f'model.class_to_idx type: {type(model.class_to_idx.items())}, idx_mapping length: {len(model.class_to_idx.items())}')
-    print(f'idx_mapping type: {type(idx_mapping)}, idx_mapping length: {len(idx_mapping)}')
+    #print(f'model.class_to_idx type: {type(model.class_to_idx.items())}, idx_mapping length: {len(model.class_to_idx.items())}')
+    #print(f'idx_mapping type: {type(idx_mapping)}, idx_mapping length: {len(idx_mapping)}')
     
     # Processing of image and prediction.
     image_tensor = process_image(args.image)
