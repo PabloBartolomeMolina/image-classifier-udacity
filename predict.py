@@ -50,19 +50,16 @@ def load_checkpoint(checkpoint_path, device):
         
     checkpoint = torch.load(f=checkpoint_path,map_location=map_location)
     # Get number of input units, output units, hidden units, and state_dict
-    return checkpoint['model_arch'],checkpoint['clf_input'], checkpoint['clf_output'], checkpoint['clf_hidden'],checkpoint['state_dict'],checkpoint['model_class_to_index']
-    '''
     model = models.vgg16(pretrained=True)
     model.name = "vgg16"
     
     for param in model.parameters(): 
         param.requires_grad = False
-    
-    # Load from checkpoint
+    #model.load_state_dict(checkpoint['state_dict'])
     model.class_to_idx = checkpoint['model_class_to_index']
     
     return model
-    '''
+    
 # loads the checkpoint and store needed parameters in appropiate variables.
 #model_arch,input_units, output_units, hidden_units, state_dict, class_to_idx = load_checkpoint(checkpoint,device)
 #model.load_state_dict(state_dict)
@@ -160,12 +157,15 @@ def main():
     # Select device and load model from checkpoint.
     device = check_gpu(gpu_arg=args.gpu);
     model = load_checkpoint(args.checkpoint, device)
-    model_arch,input_units, output_units, hidden_units, state_dict, class_to_idx = load_checkpoint(args.checkpoint,device)
-
+    
+    #idx_to_class = {val: key for key, val in model.class_to_idx.items()}
+    
     #model_arch,input_units, output_units, hidden_units, state_dict, class_to_idx = load_checkpoint(checkpoint,device)
     #model.load_state_dict(state_dict)
     
-    idx_mapping = dict(map(reversed, class_to_idx.items()))
+    idx_mapping = dict(map(reversed, model.class_to_idx.items()))
+    print(f'model.class_to_idx type: {type(model.class_to_idx.items())}, idx_mapping length: {len(model.class_to_idx.items())}')
+    print(f'idx_mapping type: {type(idx_mapping)}, idx_mapping length: {len(idx_mapping)}')
     
     # Processing of image and prediction.
     image_tensor = process_image(args.image)

@@ -14,7 +14,7 @@ def arg_parser():
     parser.add_argument('--save_dir', dest="save_dir", action="store", default="./vgg16_checkpoint.pth")
     parser.add_argument('--learning_rate', dest="learning_rate", action="store", default=0.003)
     parser.add_argument('--hidden_units', type=int, dest="hidden_units", action="store", default=120)
-    parser.add_argument('--epochs', dest="epochs", action="store", type=int, default=10)
+    parser.add_argument('--epochs', dest="epochs", action="store", type=int, default=1) # 3 for testing changes, 10 as final to get some extra accuracy
     parser.add_argument('--gpu', dest="gpu", action="store", default="cuda")
     args = parser.parse_args()
     return args
@@ -76,10 +76,10 @@ def initial_classifier(model, hidden_units):
     from collections import OrderedDict
 
     classifier_layers = OrderedDict({
-        'fc1' : nn.Linear(25088, 4096),
+        'inputs' : nn.Linear(25088, 4096),
         'relu1': nn.ReLU(),
-        'dropout1': nn.Dropout(0.05),
-        'fc2' : nn.Linear(4096, 102),
+        'dropout': nn.Dropout(0.05),
+        'output' : nn.Linear(4096, 102),
         'softmax': nn.LogSoftmax(dim=1)
     })
     classifier = nn.Sequential(classifier_layers)
@@ -180,16 +180,17 @@ def network_trainer_valider(model, train_loader, validation_loader, device,
     return model
 
 # saves the model's state_dict
-def save_model(trained_model,destination_directory,model_arch,class_to_idx):
+def save_model(trained_model,destination_directory,model_arch):
     # Defines model's checkpoint.
     # - General improvement :
     #       fixed values of neurons -> variables for each at the beginning of the file to easily manage changes.
+    
     model_checkpoint = {'model_arch':model_arch, 
                     'clf_input':25088,
                     'clf_output':102,
                     'clf_hidden':4096,
                     'state_dict':trained_model.state_dict(),
-                    'model_class_to_index':class_to_idx,
+                    'model_class_to_index':trained_model.class_to_idx,
                     #'optimizer_state_dict': optimizer.state_dict(),
                     'learning_rate': 0.003,
                     'train_batch_size': 64,
@@ -248,9 +249,8 @@ def main():
     print("\nTraining process and validation are completed!!")
     
     # Call to save the model.
-    class_to_idx = train_data.class_to_idx # improves label to name mapping
-    
     # Use current directory by default.
     destination_directory = None
-    save_model(trained_model,destination_directory,'vgg16',class_to_idx)
+    trained_model.class_to_idx = train_data.class_to_idx # improves label to name mapping
+    save_model(trained_model,destination_directory,'vgg16')
 if __name__ == '__main__': main()
