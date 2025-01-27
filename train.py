@@ -9,7 +9,7 @@ import numpy as np
 import time
 
 def arg_parser():
-    parser = argparse.ArgumentParser(description="Train.py")
+    parser = argparse.ArgumentParser(description="train.py")
     parser.add_argument('--arch', dest="arch", action="store", default="vgg16", type = str)
     parser.add_argument('--save_dir', dest="save_dir", action="store", default="./vgg16_checkpoint.pth")
     parser.add_argument('--learning_rate', dest="learning_rate", action="store", default=0.003)
@@ -87,8 +87,7 @@ def initial_classifier(model, hidden_units):
     model.classifier = classifier
     return classifier
     
-def network_trainer_valider(model, train_loader, validation_loader, device, 
-                  criterion, optimizer, epochs, print_every):
+def network_trainer_valider(model, train_loader, validation_loader, device, criterion, optimizer, epochs, print_every):
     
     if type(epochs) == type(None):
         epochs = 10
@@ -134,7 +133,7 @@ def network_trainer_valider(model, train_loader, validation_loader, device,
             running_loss += loss.item()
             running_accuracy += accuracy.item()
 
-            # runs the model on the validation set every 5 loops
+            # Runs the model on the validation set every 20 loops
             if batches%print_every == 0:
                 end = time.time()
                 training_time = end-start
@@ -179,7 +178,7 @@ def network_trainer_valider(model, train_loader, validation_loader, device,
 
     return model
 
-# saves the model's state_dict
+# Saves the model's state_dict, class_to_idx_classifier, and name.
 def save_model(trained_model,destination_directory,model_arch):
     # Defines model's checkpoint.
     # - General improvement :
@@ -204,10 +203,9 @@ def save_model(trained_model,destination_directory,model_arch):
                   'state_dict': trained_model.state_dict()}
                           
     if destination_directory: # If defined, we save in a specific directory.
-        #torch.save(model_checkpoint,destination_directory+"/"+model_arch+"_checkpoint.pth")
         torch.save(checkpoint,destination_directory+"/"+model_arch+"_checkpoint.pth")
         print(f"{model_arch} successfully saved to {destination_directory}")
-    else: # current directory
+    else: # current directory;
         torch.save(checkpoint,model_arch+"_checkpoint.pth")
         print(f"{model_arch} successfully saved to current directory as {model_arch}_checkpoint.pth")
 

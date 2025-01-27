@@ -20,28 +20,28 @@ def arg_parser():
     parser = argparse.ArgumentParser(description="predict.py")
     parser.add_argument('--image',type=str,help='Point to impage file for prediction.',required=True)
     parser.add_argument('--checkpoint',type=str,help='Point to checkpoint file as str.',required=True)
-    parser.add_argument('--top_k',type=int,help='Choose top K matches as int.', default=1)
+    parser.add_argument('--top_k',type=int,help='Choose top K matches as int.', default=1)  # By default, only one class (type of flower).
     parser.add_argument('--category_names', dest="category_names", action="store", default='cat_to_name.json')
     parser.add_argument('--gpu', dest="gpu", action="store", default="cuda")
     args = parser.parse_args()
     return args
 
 def load_checkpoint(checkpoint_path, device):
-    # loads the GPU when available
+    # Loads the GPU when available;
     if device=="gpu":
         map_location=lambda device, loc: device.cuda()
     else:
         map_location='cpu'
         
     checkpoint = torch.load(f=checkpoint_path,map_location=map_location)
-    # Get number of input units, output units, hidden units, and state_dict
+
     model = models.vgg16(pretrained=True)
     model.name = "vgg16"
     
     for param in model.parameters(): 
         param.requires_grad = False
     
-    # Load from checkpoint
+    # Load from checkpoint.
     model.class_to_idx = checkpoint['class_to_idx']
     model.classifier = checkpoint['classifier']
     model.load_state_dict(checkpoint['state_dict'])
@@ -49,7 +49,7 @@ def load_checkpoint(checkpoint_path, device):
     
     return model
 
-# Process a PIL image for use in a PyTorch model
+# Process a PIL image for use in a PyTorch model.
 def process_image(image):
     ''' Scales, crops, and normalizes a PIL image for a PyTorch model,
         returns an Numpy array
